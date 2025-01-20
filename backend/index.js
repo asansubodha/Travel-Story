@@ -257,5 +257,42 @@ app.post('/edit-story/:id', authenticateToken ,async (req, res) => {
     }
 });
 
+//Delete Travel Story
+app.delete('/delete-story/:id', authenticateToken ,async (req, res) => {
+    const {id} = req.params;
+    const {userId} = req.user;
+
+    try {
+        // Find the travel story by id and ensure it belongs to the user
+        const travelStory = await TravelStory.findOne({_id: id, userId: userId});
+
+        if(!travelStory) {
+            return res.status(404).json({error: true, message: 'Travel story not found'});
+        }
+
+        //delete the travel story
+        await travelStory.deleteOne({_id: id, userId: userId});
+
+        //extract the file name from the imageURL
+        const imageUrl = travelStory.ImageUrl;
+        const filename = path.basename(imageUrl);
+
+        //Define the file path
+        const filePath = path.join(__dirname, 'uploads', filename);
+
+        //Delete the file from the uploads directory
+        fs.unlinkSync(filePath, (err) => {
+            if(err) {
+                console.error("Failed to delete file", err);
+            }
+        });
+
+        res.status(200).json({message: 'Travel story deleted successfully'});
+       
+    } catch (error) {
+        res.status(500).json({error: true, message: error.message});
+    }
+});
+
 app.listen(8000);
 module.exports = app;
