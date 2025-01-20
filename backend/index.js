@@ -148,5 +148,21 @@ app.post('/add-travel-story', authenticateToken ,async (req, res) => {
 
 });
 
+//Get all Travel Story
+app.get('/get-all-stories', authenticateToken ,async (req, res) => {
+    const {userId} = req.user;
+
+    try{
+        const travelStories = await TravelStory.find({userId}).sort({isFavorite: -1, createdOn: -1});
+        res.status(200).json({stories: travelStories});
+    }
+    catch (error) {
+        res.status(500).json({error: true, message: error.message});
+    }
+});
+
+//Route to handle image upload
+
+
 app.listen(8000);
 module.exports = app;
