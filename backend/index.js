@@ -294,5 +294,7 @@ app.delete('/delete-story/:id', authenticateToken ,async (req, res) => {
     }
 });
 
+//Update Favorite Status
+
 app.listen(8000);
 module.exports = app;
