@@ -221,7 +221,7 @@ app.get('/get-all-stories', authenticateToken ,async (req, res) => {
 });
 
 //Edit Travel Story
-app.post('/edit-story/:id', authenticateToken ,async (req, res) => {
+app.put('/edit-story/:id', authenticateToken ,async (req, res) => {
     const {id} = req.params;
     const {title, story, visibleLocation, ImageUrl, visitedDate} = req.body;
     const {userId} = req.user;
@@ -295,6 +295,28 @@ app.delete('/delete-story/:id', authenticateToken ,async (req, res) => {
 });
 
 //Update Favorite Status
+app.put('/update-is-favorite/:id', authenticateToken ,async (req, res) => {
+    const {id} = req.params;
+    const {isFavorite} = req.body;
+    const {userId} = req.user;
+
+    try {
+        // Find the travel story by id and ensure it belongs to the user
+        const travelStory = await TravelStory.findOne({_id: id, userId: userId});
+
+        if(!travelStory) {
+            return res.status(404).json({error: true, message: 'Travel story not found'});
+        }
+
+        travelStory.isFavorite = isFavorite;
+        await travelStory.save();
+        res.status(200).json({story: travelStory, message: 'Favorite status updated successfully'});
+    } catch (error) {
+        res.status(500).json({error: true, message: error.message});
+    }
+});
+
+
 
 app.listen(8000);
 module.exports = app;
